@@ -1,14 +1,27 @@
-import fs from 'node:fs';
-import path from 'node:path';
+'use strict';
 
-// Hostycare / cPanel "Setup Node.js App" default startup entrypoint
-const prodEntry = path.resolve(process.cwd(), 'dist', 'server.cjs');
+const fs = require('node:fs');
+const path = require('node:path');
+const { execSync } = require('node:child_process');
 
-if (!fs.existsSync(prodEntry)) {
-  console.error(
-    'Production build not found (dist/server.cjs missing). Please run "npm run build" before starting the production server.'
-  );
-  process.exit(1);
+// HostyCare / cPanel "Setup Node.js App" (Phusion Passenger) CommonJS startup entrypoint
+const rootDir = __dirname;
+const prodServer = path.resolve(rootDir, 'dist', 'server.cjs');
+const prodHtml = path.resolve(rootDir, 'dist', 'index.html');
+
+if (!fs.existsSync(prodServer) || !fs.existsSync(prodHtml)) {
+  if (
+    fs.existsSync(path.resolve(rootDir, 'server.ts')) &&
+    fs.existsSync(path.resolve(rootDir, 'index.html'))
+  ) {
+    console.log('Production build missing. Running "npm run build" automatically...');
+    execSync('npm run build', { cwd: rootDir, stdio: 'inherit' });
+  } else {
+    console.error(
+      'Production build not found (dist/server.cjs or dist/index.html missing). Please run "npm run build" before starting the production server.'
+    );
+    process.exit(1);
+  }
 }
 
-await import('./dist/server.cjs');
+require(prodServer);

@@ -22,6 +22,21 @@ import {
 import { db as coreDb } from './db.js';
 
 function resolveDbPath(): string {
+  const customPath = (process.env.DB_PATH || '').trim();
+  if (customPath) {
+    const resolvedCustom = path.resolve(customPath);
+    const customDir = path.dirname(resolvedCustom);
+    try {
+      if (!fs.existsSync(customDir)) {
+        fs.mkdirSync(customDir, { recursive: true });
+      }
+      fs.accessSync(customDir, fs.constants.W_OK);
+      return resolvedCustom;
+    } catch {
+      // Fall through to default resolution if custom path is not writable
+    }
+  }
+
   const preferredDir = path.resolve(process.cwd(), 'data');
   try {
     if (!fs.existsSync(preferredDir)) {
@@ -41,7 +56,16 @@ function resolveDbPath(): string {
 
 const DB_PATH = resolveDbPath();
 const sqlite = new Database(DB_PATH);
-sqlite.pragma('journal_mode = WAL');
+try {
+  sqlite.pragma('journal_mode = WAL');
+} catch {
+  // Fallback for shared/network filesystems (e.g. cPanel NFS) that disallow WAL shared memory
+  try {
+    sqlite.pragma('journal_mode = DELETE');
+  } catch {
+    // Non-fatal
+  }
+}
 sqlite.pragma('foreign_keys = ON');
 
 // ==========================================

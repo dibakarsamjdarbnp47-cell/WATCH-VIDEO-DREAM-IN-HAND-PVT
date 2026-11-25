@@ -1,8 +1,16 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { createApp } from './server/createApp.js';
+
+dotenv.config();
+if (typeof __dirname !== 'undefined') {
+  const rootEnvPath = path.resolve(__dirname, '..', '.env');
+  if (fs.existsSync(rootEnvPath)) {
+    dotenv.config({ path: rootEnvPath });
+  }
+}
 
 async function startServer() {
   const app = createApp();
@@ -19,7 +27,7 @@ async function startServer() {
   const runningBuiltServer =
     typeof __filename !== 'undefined' && __filename.endsWith('.cjs');
   const isProduction =
-    process.env.NODE_ENV === 'production' || (runningBuiltServer && hasBuiltDist);
+    process.env.NODE_ENV === 'production' || runningBuiltServer;
 
   // ==========================================
   // VITE & STATIC MIDDLEWARE SETUP
@@ -36,6 +44,11 @@ async function startServer() {
     app.get('*', (req, res, next) => {
       if (req.path.startsWith('/api')) {
         return next();
+      }
+      if (!hasBuiltDist) {
+        return res
+          .status(503)
+          .send('Application build not found (dist/index.html missing). Run "npm run build".');
       }
       res.sendFile(path.join(distPath, 'index.html'));
     });
