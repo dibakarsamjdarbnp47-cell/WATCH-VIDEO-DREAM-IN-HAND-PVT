@@ -9,7 +9,7 @@ import { ecommerceDb } from './ecommerceDb.js';
 const TEMP_BACKUP_PREFIX = 'wdh_website_backup_';
 const TEMP_BACKUP_TTL_MS = 10 * 60 * 1000; // 10 minutes max retention
 
-const ALLOWED_ROOT_DIRS = ['src', 'server', 'public', 'netlify'];
+const ALLOWED_ROOT_DIRS = ['src', 'server', 'public'];
 const ALLOWED_ROOT_FILES = [
   'index.html',
   'package.json',
@@ -19,7 +19,6 @@ const ALLOWED_ROOT_FILES = [
   'app.js',
   'README.md',
   'metadata.json',
-  'netlify.toml',
   '.env.example',
   '.gitignore',
 ];
@@ -124,7 +123,7 @@ export function createBackupRouter(): Router {
         const entryZipPath = zipRelDir ? `${zipRelDir}/${entry.name}` : entry.name;
 
         if (entry.isDirectory()) {
-          if (['node_modules', '.git', '.aistudio', 'data', '.netlify', 'dist'].includes(entry.name)) {
+          if (['node_modules', '.git', '.aistudio', 'data', 'dist'].includes(entry.name)) {
             skippedItems.push(`${entryZipPath}/ (excluded)`);
             continue;
           }

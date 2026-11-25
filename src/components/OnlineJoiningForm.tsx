@@ -151,7 +151,7 @@ export const OnlineJoiningForm: React.FC<JoiningFormProps> = ({ onSuccess }) => 
       console.warn('API sponsor check fallback to client dataset:', e);
     }
 
-    // Client-side fallback check (for static Netlify deployment)
+    // Client-side fallback check (when API is unreachable)
     const localSponsor = users.find(
       (u) => u.id.toLowerCase() === sponsorCode.trim().toLowerCase()
     );
@@ -263,7 +263,7 @@ export const OnlineJoiningForm: React.FC<JoiningFormProps> = ({ onSuccess }) => 
       console.warn('API register fallback to client-side registration:', err);
     }
 
-    // Client-side fallback registration for static host (Netlify static)
+    // Client-side fallback registration (when API is unreachable)
     const newIdNum = 100000 + users.length + 1;
     const newUserId = `WDH-${newIdNum}`;
     const initials = formData.name.split(' ').map((n) => n[0]).join('').toUpperCase().substring(0, 2) || 'MB';

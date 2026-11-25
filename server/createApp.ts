@@ -12,17 +12,6 @@ export function createApp(): Express {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-  // Netlify Serverless Function URL normalizer: Maps /.netlify/functions/api/* seamlessly to /api/*
-  app.use((req, res, next) => {
-    if (req.url.startsWith('/.netlify/functions/api')) {
-      req.url = req.url.replace('/.netlify/functions/api', '');
-      if (!req.url.startsWith('/api')) {
-        req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
-      }
-    }
-    next();
-  });
-
   // ==========================================
   // AUTH CONTEXT & SECURITY HELPER
   // ==========================================

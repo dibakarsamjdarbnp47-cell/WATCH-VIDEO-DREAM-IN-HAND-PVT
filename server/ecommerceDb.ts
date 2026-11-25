@@ -30,7 +30,7 @@ function resolveDbPath(): string {
     fs.accessSync(preferredDir, fs.constants.W_OK);
     return path.join(preferredDir, 'wdh_ecommerce.db');
   } catch {
-    // Fallback for read-only serverless environments (e.g., Netlify Lambda)
+    // Fallback for read-only filesystem environments
     const tmpDir = '/tmp/wdh_data';
     if (!fs.existsSync(tmpDir)) {
       fs.mkdirSync(tmpDir, { recursive: true });
