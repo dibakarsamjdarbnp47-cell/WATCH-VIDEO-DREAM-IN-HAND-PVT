@@ -1,4 +1,3 @@
-import { ZipArchive } from 'archiver';
 import crypto from 'crypto';
 import express, { Router } from 'express';
 import fs from 'fs';
@@ -291,6 +290,7 @@ export function createBackupRouter(): Router {
         },
       };
 
+      const { ZipArchive } = await import('archiver');
       await new Promise<void>((resolve, reject) => {
         const output = fs.createWriteStream(tempZipPath);
         const archive = new ZipArchive({ zlib: { level: 6 } });
